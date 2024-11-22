@@ -1,12 +1,13 @@
 import 'reflect-metadata'
 import 'dotenv/config'
 
+
+import {EvmMarketDataERC20TokensByPriceMovers} from '@moralisweb3/common-evm-utils'
 import express from 'express';
 import * as fs from 'node:fs'
 import * as showdown from 'showdown'
 
-import {Md2NotionProvider} from './Md2NotionProvider'
-import {Notion2MdProvider} from './Notion2MdProvider'
+import * as config from './config';
 
 // set up express web server
 const app = express()
@@ -16,6 +17,32 @@ app.use(express.static('public'))
 app.use(express.json())
 
 const md = new showdown.Converter()
+
+/**
+ * GET /api/tokens/by-price-change
+ * Returns a list of the best and least performing cryptocurrencies in the last 24 hours.
+ *
+ * @param query.limit - (number) Amount of tokens to retrieve, default is 5
+ * @param query.category - (string) Tokens category, default is `all`
+ * * @param query.timeframe - (24h|7d) Timeframe for price change, default is `24h`
+ */
+app.get('/api/tokens/by-price-change', async (request, response) => {
+  console.log(`Trying to get top tokens by price change...`)
+
+  // Moralis NodeJS SDK not working, will use raw API
+  const tokensReponse = await fetch(`https://deep-index.moralis.io/api/v2.2/market-data/erc20s/top-movers`, {
+    headers: {
+      'accept': 'application/json',
+      'X-API-Key': config.MORALIS_API_KEY!,
+    }
+  })
+
+  const tokens = await tokensReponse.json() as EvmMarketDataERC20TokensByPriceMovers
+  console.log(`Received tokens`, tokens.gainers[0])
+
+  response.json(tokens.gainers[0])
+})
+
 // Main page
 app.get('/', async(_request, response) => {
   const readme = fs.readFileSync('README.md', 'utf-8')
@@ -34,56 +61,16 @@ app.get('/', async(_request, response) => {
   }
 })
 
-/**
- * POST /api/md/to-notion-blocks
- * Parses Markdown content into Notion Blocks.
- *
- * @param body.markdown Any Markdown or GFM content
- * @param body.options Any additional option
- */
-app.post('/api/md/to-notion-blocks', async (request, response) => {
-  const provider = new Md2NotionProvider()
-  const blocks = await provider.toBlocks(request.body.markdown, request.body.options)
 
-  console.log(`Received request. ${request.body.markdown}\n Sending Notion Blocks. ${blocks}`)
-  response.json(blocks)
-})
 
-/**
- * POST /api/md/to-notion-rich-text
- * Parses Markdown content into Notion Blocks.
- *
- * @param body.markdown Any Markdown or GFM content
- * @param body.options Any additional option
- */
-app.post('/api/md/to-notion-rich-text', async (request, response) => {
-  const provider = new Md2NotionProvider()
-  const richText = await provider.toRichText(request.body.markdown, request.body.options)
+async function main(){
+  app.listen(config.port, () => {
+    console.log(`🚀 Server ready at: https://localhost:${config.port}`)
+  }) 
+}
 
-  console.log(`Received request. ${request.body.markdown}\n Sending Notion Rich Text. ${richText}`)
-
-  response.json(richText)
-})
-
-/**
- * POST /api/notion/to-md
- * Converts list of Notion Blocks to Markdown string
- * @param {ListBlockChildrenResponseResults | undefined} body.blocks - List of notion blocks
- * @param {number} body.totalPage - Retrieve block children request number, page_size Maximum = totalPage * 100
- * @param {MdBlock[]} body.mdBlocks - Defines max depth of nesting
- * @param {number} body.nestingLevel - Defines max depth of nesting
- * @returns {MdStringObject} - Returns markdown string with child pages separated
- */
-app.post('/api/notion/to-md', async (request, response) => {
-  const provider = new Notion2MdProvider()
-  const md = await provider.toMd(request.body.blocks, request.body.totalPage, request.body.mdBlocks, request.body.pageIdentifier, request.body.nestingLevel)
-
-  console.log(`Received request. ${request.body.blocks}\n Sending Markdown. ${md}`)
-
-  response.json(md)
-})
-
-// Start web server on port 3000
-app.listen(3000, () => {
-  console.log('Server is listening on port 3000')
-})
+main()
+  .catch((error) => {
+    console.error(error)
+    process.exit(1)
+  })
