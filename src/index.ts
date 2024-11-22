@@ -1,13 +1,12 @@
 import 'reflect-metadata'
 import 'dotenv/config'
 
-
-import {EvmMarketDataERC20TokensByPriceMovers} from '@moralisweb3/common-evm-utils'
 import express from 'express';
 import * as fs from 'node:fs'
 import * as showdown from 'showdown'
 
 import * as config from './config';
+import { MoralistAdapter } from './MoralistAdapter';
 
 // set up express web server
 const app = express()
@@ -16,7 +15,7 @@ app.use(express.static('public'))
 // Use express.json() middleware to parse JSON bodies
 app.use(express.json())
 
-const md = new showdown.Converter()
+const moralis = new MoralistAdapter()
 
 /**
  * GET /api/tokens/by-price-change
@@ -29,19 +28,19 @@ const md = new showdown.Converter()
 app.get('/api/tokens/by-price-change', async (request, response) => {
   console.log(`Trying to get top tokens by price change...`)
 
-  // Moralis NodeJS SDK not working, will use raw API
-  const tokensReponse = await fetch(`https://deep-index.moralis.io/api/v2.2/market-data/erc20s/top-movers`, {
-    headers: {
-      'accept': 'application/json',
-      'X-API-Key': config.MORALIS_API_KEY!,
-    }
-  })
+  const tokens = await moralis.getTopERC20TokensByPriceMovers()
+  const gainers = tokens.gainers.map((token) => ({
+    name: token.token_name, 
+    symbol: token.token_symbol,
+    priceChange24h: token.price_24h_percent_change,
+    priceChange7d: token.price_7d_percent_change
+  }))
+  console.log(`Received tokens`, gainers)
 
-  const tokens = await tokensReponse.json() as EvmMarketDataERC20TokensByPriceMovers
-  console.log(`Received tokens`, tokens.gainers[0])
-
-  response.json(tokens.gainers[0])
+  response.json(gainers)
 })
+
+const md = new showdown.Converter()
 
 // Main page
 app.get('/', async(_request, response) => {
