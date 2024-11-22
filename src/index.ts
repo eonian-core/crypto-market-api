@@ -6,7 +6,7 @@ import * as fs from 'node:fs'
 import * as showdown from 'showdown'
 
 import * as config from './config';
-import { MoralistAdapter } from './MoralistAdapter';
+import { CoinrankingAdapter } from './CoinrankingAdapter';
 
 // set up express web server
 const app = express()
@@ -15,7 +15,7 @@ app.use(express.static('public'))
 // Use express.json() middleware to parse JSON bodies
 app.use(express.json())
 
-const moralis = new MoralistAdapter()
+const coinranking = new CoinrankingAdapter()
 
 /**
  * GET /api/tokens/by-price-change
@@ -28,16 +28,27 @@ const moralis = new MoralistAdapter()
 app.get('/api/tokens/by-price-change', async (request, response) => {
   console.log(`Trying to get top tokens by price change...`)
 
-  const tokens = await moralis.getTopERC20TokensByPriceMovers()
-  const gainers = tokens.gainers.map((token) => ({
-    name: token.token_name, 
-    symbol: token.token_symbol,
-    priceChange24h: token.price_24h_percent_change,
-    priceChange7d: token.price_7d_percent_change
-  }))
-  console.log(`Received tokens`, gainers)
+  const tokens = await coinranking.getCoins({
+    limit: 5,
+    timePeriod: '24h',
+    orderBy: 'change',
+  })
 
-  response.json(gainers)
+  const details = await Promise.all(tokens.data.coins.map((coin) => coinranking.getCoinDetails(coin.uuid)))
+  const top = details.map(({data: {coin}}) => ({
+    uuid: coin.uuid,
+    symbol: coin.symbol,
+    name: coin.name,
+    change: coin.change,
+    price: coin.price,
+    links: coin.links.find((link) => link.type === 'twitter'), 
+    website: coin.websiteUrl,
+    rank: coin.rank,
+    tier: coin.tier,
+  }))
+  console.log(`Received tokens`, top)
+
+  response.json(top)
 })
 
 const md = new showdown.Converter()
