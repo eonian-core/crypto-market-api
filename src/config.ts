@@ -5,9 +5,6 @@ console.log(`Starting server in ${isProduction ? 'production' : 'development'} m
 export const port = +(process.env.PORT || "3000")
 
 export const MORALIS_API_KEY = process.env.MORALIS_API_KEY
-if(!MORALIS_API_KEY) {
-    throw new Error('MORALIS_API_KEY is not provided')
-}
 
 export const COINRANKING_API_KEY = process.env.COINRANKING_API_KEY
 if(!COINRANKING_API_KEY) {
