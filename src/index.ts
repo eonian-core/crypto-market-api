@@ -38,7 +38,7 @@ app.get('/api/tokens', async (request, response) => {
     ...(category ? { tags: [category as any] } : {})
   })
 
-  response.json(tokens)
+  response.json({tokens})
 })
 
 const md = new showdown.Converter()
