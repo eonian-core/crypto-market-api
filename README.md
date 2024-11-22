@@ -10,7 +10,7 @@ Main page. Sends the readme content as an HTML response.
 
 ---
 
-### `GET /api/tokens/by-price-change`
+### `GET /api/tokens`
 
 Returns a list of the best and least performing cryptocurrencies in the last 24 hours.
 
@@ -18,8 +18,9 @@ Returns a list of the best and least performing cryptocurrencies in the last 24 
 **Query Params:**
 
 - `limit`: (number) Amount of tokens to retrieve, default is 5
-- `category`: (string) Tokens category, default is `all`
-- `timeframe`: (24h|7d) Timeframe for price change, default is `24h`
+- `category`: (string) Tokens category, default undefined, which means all
+- orderBy - ('price' | 'marketCap' | '24hVolume' | 'change' | 'listedAt') Order tokens by price change, volume or market capitalization, default is `change`
+- `timeframe`: ('1h' | '3h' | '12h' | '24h' | '7d' | '30d' | '3m' | '1y' | '3y' | '5y') Timeframe for price change, default is `24h`
 
 **Response:**  
 Returns a JSON of tokens based on https://docs.moralis.com/market-insights-api/reference/get-top-erc20-tokens-by-price-movers

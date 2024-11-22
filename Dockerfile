@@ -21,14 +21,14 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
 
 # Install node modules
-COPY --link package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production=false
+COPY --link package-lock.json package.json ./
+RUN npm ci --ignore-scripts --include=dev 
 
 # Copy application code
 COPY --link . .
 
 # Build application
-RUN yarn run build
+RUN npm run build
 
 
 # Final stage for app image

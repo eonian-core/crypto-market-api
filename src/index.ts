@@ -7,6 +7,7 @@ import * as showdown from 'showdown'
 
 import * as config from './config';
 import { CoinrankingAdapter } from './CoinrankingAdapter';
+import { TokenStatsService } from './TokensStatsService';
 
 // set up express web server
 const app = express()
@@ -16,39 +17,28 @@ app.use(express.static('public'))
 app.use(express.json())
 
 const coinranking = new CoinrankingAdapter()
-
+const tokensService = new TokenStatsService(coinranking)
 /**
- * GET /api/tokens/by-price-change
+ * GET /api/tokens
  * Returns a list of the best and least performing cryptocurrencies in the last 24 hours.
  *
  * @param query.limit - (number) Amount of tokens to retrieve, default is 5
- * @param query.category - (string) Tokens category, default is `all`
- * * @param query.timeframe - (24h|7d) Timeframe for price change, default is `24h`
+ * @param query.category - (string) Tokens category, default undefined, which means all
+ * @param query.orderBy - ('price' | 'marketCap' | '24hVolume' | 'change' | 'listedAt') Order tokens by price change, volume or market capitalization, default is `change`
+ * @param query.timeframe - ('1h' | '3h' | '12h' | '24h' | '7d' | '30d' | '3m' | '1y' | '3y' | '5y') Timeframe for price change, default is `24h`
  */
-app.get('/api/tokens/by-price-change', async (request, response) => {
+app.get('/api/tokens', async (request, response) => {
+  const { limit = 5, category, orderBy = 'change', timeframe = '24h' } = request.query
   console.log(`Trying to get top tokens by price change...`)
 
-  const tokens = await coinranking.getCoins({
-    limit: 5,
-    timePeriod: '24h',
-    orderBy: 'change',
+  const tokens = await tokensService.getTokens({
+    limit: limit as number,
+    timePeriod: timeframe as any,
+    orderBy: orderBy as any,
+    ...(category ? { tags: [category as any] } : {})
   })
 
-  const details = await Promise.all(tokens.data.coins.map((coin) => coinranking.getCoinDetails(coin.uuid)))
-  const top = details.map(({data: {coin}}) => ({
-    uuid: coin.uuid,
-    symbol: coin.symbol,
-    name: coin.name,
-    change: coin.change,
-    price: coin.price,
-    links: coin.links.find((link) => link.type === 'twitter'), 
-    website: coin.websiteUrl,
-    rank: coin.rank,
-    tier: coin.tier,
-  }))
-  console.log(`Received tokens`, top)
-
-  response.json(top)
+  response.json(tokens)
 })
 
 const md = new showdown.Converter()
