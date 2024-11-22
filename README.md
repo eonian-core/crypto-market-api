@@ -1,6 +1,6 @@
-# Notion-MD Translator
+# Crypto Market API
 
-Lambda-based API to convert Notion API Blocks and RichText to markdown and back
+Lambda that provides API to retrieve data about crypto market prices and performance
 
 ## API Documentation
 
@@ -10,62 +10,31 @@ Main page. Sends the readme content as an HTML response.
 
 ---
 
-### `POST /api/md/to-notion-blocks`
+### `GET /api/tokens/by-price-change`
 
-Parses Markdown content into Notion Blocks.
+Returns a list of the best and least performing cryptocurrencies in the last 24 hours.
 
-**Request Body:**
 
-- `markdown`: (string) Any Markdown or GFM content
-- `options`: (object) Any additional option
+**Query Params:**
+
+- `limit`: (number) Amount of tokens to retrieve, default is 5
+- `category`: (string) Tokens category, default is `all`
+- `timeframe`: (24h|7d) Timeframe for price change, default is `24h`
 
 **Response:**  
-Returns a JSON object of Notion Blocks.
+Returns a JSON of tokens based on https://docs.moralis.com/market-insights-api/reference/get-top-erc20-tokens-by-price-movers
+with additional meta data https://docs.moralis.com/web3-data-api/evm/reference/get-token-metadata-by-symbol
 
 ---
-
-### `POST /api/md/to-notion-rich-text`
-
-Parses Markdown content into Notion Rich Text.
-
-**Request Body:**
-
-- `markdown`: (string) Any Markdown or GFM content
-- `options`: (object) Any additional option
-
-**Response:**  
-Returns a JSON object of Notion Rich Text.
-
----
-
-### `POST /api/notion/to-md`
-
-Converts list of Notion Blocks to Markdown string.
-
-**Request Body:**
-
-- `blocks`: (array) List of notion blocks
-- `totalPage`: (number) Retrieve block children request number, page_size Maximum = totalPage * 100
-- `mdBlocks`: (array) Defines max depth of nesting
-- `pageIdentifier`: (string) Identifier for the page
-- `nestingLevel`: (number) Defines max depth of nesting
-
-**Response:**  
-Returns a JSON object containing a markdown string with child pages separated.
 
 ## Test API
 
 You can test the API using the following curl commands:
 
 ```bash
-# api/md/to-notion-blocks
-curl -X POST -H "Content-Type: application/json" -d "$(cat ./src/tests/md.test.json)" http://localhost:3000/api/md/to-notion-blocks
+# api/tokens/by-price-change
+curl -X GET -H "Content-Type: application/json" http://localhost:3000/api/tokens/by-price-change
 
-# md/to-notion-rich-text
-curl -X POST -H "Content-Type: application/json" -d "$(cat ./src/tests/md.test.json)" http://localhost:3000/api/md/to-notion-rich-text
-
-# notion/to-md
-curl -X POST -H "Content-Type: application/json" -d "$(cat ./src/tests/notion.test.json)" http://localhost:3000/api/notion/to-md
 
 ```
 
@@ -74,14 +43,14 @@ curl -X POST -H "Content-Type: application/json" -d "$(cat ./src/tests/notion.te
 Clone repo
 
 ```bash
-git clone https://github.com/eonian-core/notion-md-translator.git
+git clone https://github.com/eonian-core/crypto-market-api.git
 ```
 
 Install dependencies
 
 ```bash
-  cd notion-md-translator
-  yarn
+  cd crypto-market-api
+  npm i 
 ```
 
 ## Development
@@ -89,7 +58,7 @@ Install dependencies
 Build and start server
 
 ```bash
-  yarn dev
+  npm run dev
 ```
 
 ### Commands
@@ -103,9 +72,9 @@ To run tests, run the following command
 
 ```bash
   # Unit tests on mocks
-  yarn test
+  npm run test
   # E2E tests with real requests
-  yarn test:e2e
+  npm run test:e2e
 ```
 
 ### Deployment
@@ -115,7 +84,7 @@ To deploy, you need [install flyctl](https://fly.io/docs/hands-on/install-flyctl
 To deploy this project run
 
 ```bash
-  yarn deploy
+  npm run deploy
 ```
 
 #### Next steps
@@ -125,7 +94,7 @@ To deploy this project run
 
 ## Made by Eonian
 
-[Eonian](https://www.github.com/octokatherine) internal project. We trying to be as transparent as possible with our users, as part of this practice we publishing this project.
+[Eonian](https://eonian.finance) internal project. We trying to be as transparent as possible with our users, as part of this practice we publishing this project.
 You can also use it for own development. Any contributions and suggestions are welcome!
 
 ## Contributing

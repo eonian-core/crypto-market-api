@@ -1,4 +1,7 @@
-import * as express from 'express'
+import 'reflect-metadata'
+import 'dotenv/config'
+
+import express from 'express';
 import * as fs from 'node:fs'
 import * as showdown from 'showdown'
 

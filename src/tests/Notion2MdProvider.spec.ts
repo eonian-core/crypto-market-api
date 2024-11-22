@@ -1,3 +1,4 @@
+import {describe, expect, beforeEach, it} from '@jest/globals';
 import { Notion2MdProvider } from '../Notion2MdProvider';
 
 describe('Notion2MdProvider', () => {

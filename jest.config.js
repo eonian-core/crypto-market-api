@@ -1,8 +1,7 @@
-require('dotenv').config();
-
-/** @type {import('ts-jest').JestConfigWithTsJest} */
+/** @type {import('ts-jest').JestConfigWithTsJest} **/
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  testMatch: ['**/*.spec.ts'],
+  testEnvironment: "node",
+  transform: {
+    "^.+.tsx?$": ["ts-jest",{}],
+  },
 };
