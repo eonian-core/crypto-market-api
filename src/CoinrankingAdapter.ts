@@ -13,7 +13,7 @@ export interface GetCoinsOptions {
     /** example https://api.coinranking.com/v2/coins?tiers[]=1&tiers[]=2 */
     tiers?: Array<1 | 2 | 3>;
     /** example https://api.coinranking.com/v2/coins?tags[]=defi */
-    tags?: Array<'defi' | 'stablecoin' | 'nft' | 'dex' | 'exchange' | 'staking' | 'dao' | 'meme' | 'privacy' | 'metaverse' | 'gaming' | 'wrapped' | 'layer-1' | 'layer-2' | 'fan-token' | 'football-club' | 'web3' | 'social'>;
+    tags?: Array<'defi' | 'stablecoin' | 'nft' | 'dex' | 'ai' | 'altcoin' | 'exchange' | 'staking' | 'dao' | 'meme' | 'privacy' | 'metaverse' | 'gaming' | 'wrapped' | 'layer-1' | 'layer-2' | 'fan-token' | 'football-club' | 'web3' | 'social' | 'depin'>;
     /** default value marketCap */
     orderBy?: 'price' | 'marketCap' | '24hVolume' | 'change' | 'listedAt';
     /** default value desc */
@@ -32,11 +32,12 @@ export interface BaseCoinData {
     color: string;
     iconUrl: string;
     marketCap: string;
+    '24hVolume': string;
     price: string;
+    btcPrice: string;
     tier: number;
     change: string;
     rank: number;
-    btcPrice: string;
 }
 
 export interface GetCoinsResponse {
@@ -49,6 +50,7 @@ export interface CoinDetails extends BaseCoinData {
     links: Array<{name: string, url: string, type: string}>;
     tags: Array<string>;
     allTimeHigh: {price: string, timestamp: number};
+    coinrankingUrl: string;
 }
 
 export interface CoinDetailsResponse {
