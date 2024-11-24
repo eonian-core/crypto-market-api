@@ -18,7 +18,7 @@ export class TokensController {
                 ...(category ? { tags: [category as any] } : {})
               })
               
-            response.json(tokens)
+            response.json({tokens})
         } catch (error: any) {
             console.error(`Failed to get tokens`, error)
             response.status(500).json({error: 'Failed to get tokens', internalError: error?.message})
