@@ -65,6 +65,9 @@ export function parseTwitterLink(url?: string): {url: string, handle: string} | 
         return 
     }
 
-    const handle = url.split('/').pop()!
+    const urlEnd = url.split('/').pop()!
+    const questionIndex = urlEnd.indexOf('?')
+    const handle = questionIndex === -1 ? urlEnd : urlEnd.substring(0, questionIndex)
+
     return {url, handle}
 }
