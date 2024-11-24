@@ -1,5 +1,5 @@
 
-import * as config from './config';
+import * as config from '../config';
 
 export interface GetCoinsOptions {
     /** default 50 */

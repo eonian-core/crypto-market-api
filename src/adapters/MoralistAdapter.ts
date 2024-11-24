@@ -1,6 +1,6 @@
 // import Moralis from 'moralis';
 import {EvmMarketDataERC20TokensByPriceMoversJSON} from '@moralisweb3/common-evm-utils'
-import * as config from './config';
+import * as config from '../config';
 
 export class MoralistAdapter {
     

@@ -1,4 +1,4 @@
-import { CoinDetailsResponse, CoinrankingAdapter, CoinrankingResponse, GetCoinsOptions } from "./CoinrankingAdapter";
+import { CoinDetailsResponse, CoinrankingAdapter, CoinrankingResponse, GetCoinsOptions } from "../adapters/CoinrankingAdapter";
 
 export interface TokensResult {
     uuid: string;
@@ -21,7 +21,7 @@ export interface TokensResult {
     coinrankingUrl: string;
 }
 
-export class TokenStatsService {
+export class TokenService {
     constructor(
         private api: CoinrankingAdapter
     ){}

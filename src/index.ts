@@ -6,8 +6,9 @@ import * as fs from 'node:fs'
 import * as showdown from 'showdown'
 
 import * as config from './config';
-import { CoinrankingAdapter } from './CoinrankingAdapter';
-import { TokenStatsService } from './TokensStatsService';
+import { CoinrankingAdapter } from './adapters/CoinrankingAdapter';
+import { TokenService } from './tokens/TokensService';
+import { TokensController } from './tokens/TokensController';
 
 // set up express web server
 const app = express()
@@ -17,7 +18,8 @@ app.use(express.static('public'))
 app.use(express.json())
 
 const coinranking = new CoinrankingAdapter()
-const tokensService = new TokenStatsService(coinranking)
+const tokensService = new TokenService(coinranking)
+const tokensController = new TokensController(tokensService)
 /**
  * GET /api/tokens
  * Returns a list of the best and least performing cryptocurrencies in the last 24 hours.
@@ -28,17 +30,7 @@ const tokensService = new TokenStatsService(coinranking)
  * @param query.timeframe - ('1h' | '3h' | '12h' | '24h' | '7d' | '30d' | '3m' | '1y' | '3y' | '5y') Timeframe for price change, default is `24h`
  */
 app.get('/api/tokens', async (request, response) => {
-  const { limit = 5, category, orderBy = 'change', timeframe = '24h' } = request.query
-  console.log(`Trying to get top tokens by price change...`)
-
-  const tokens = await tokensService.getTokens({
-    limit: limit as number,
-    timePeriod: timeframe as any,
-    orderBy: orderBy as any,
-    ...(category ? { tags: [category as any] } : {})
-  })
-
-  response.json({tokens})
+  await tokensController.getTokens(request, response)
 })
 
 const md = new showdown.Converter()
